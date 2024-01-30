@@ -1,4 +1,4 @@
-module JoinDiag
+module JointDiag
 
 using LinearAlgebra
 
