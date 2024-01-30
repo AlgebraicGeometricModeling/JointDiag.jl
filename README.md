@@ -1,2 +1,8 @@
-# JoinDiag.jl
-Join diagonalisation of multiplication matrices
+# JointDiag.jl
+
+[![Build Status][build-img]][build-url]
+
+[build-img]: https://github.com/AlgebraicGeometricModeling/JointDiag.jl/workflows/CI/badge.svg?branch=main
+[build-url]: https://github.com/AlgebraicGeometricModeling/JointDiag.jl/actions?query=workflow%3ACI
+
+Joint diagonalisation of multiplication matrices
