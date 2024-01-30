@@ -1,3 +1,15 @@
+export norm_off, NewtonJointDiag, joint_diag
+
+using LinearAlgebra
+
+mutable struct NewtonJointDiag{T}
+    max_iter::Int
+    epsilon::T
+    error::T
+    nb_iter::Int
+end
+
+NewtonJointDiag() = NewtonJointDiag(10, 1.e-3, 0.0, 0) 
 
 # norm of off diagonal terms of a square matrix
 function norm_off(M)
@@ -8,7 +20,7 @@ function norm_off(M)
     end
 end
 
-function diagonalization_iter(D)
+function newton_joint_diag_iter(D)
     n = size(D[1],1)
     s = length(D)
     
@@ -38,15 +50,13 @@ function diagonalization_iter(D)
     return X, Y
 end
 
-function diagonalization(M::Vector{Matrix{C}},
-                         Info = Dict{String,Any}(
-                             "maxIter" => 10,
-                             "epsIter" => 1.e-3)) where C
+function joint_diag(M::Vector{Matrix{C}},
+                    Solver::NewtonJointDiag) where C
     n  = length(M)
     r  = size(M[1],1)
 
-    N   = (haskey(Info,"maxIter") ? Info["maxIter"] : 10)
-    eps = (haskey(Info,"epsIter") ? Info["epsIter"] : 1.e-3)
+    N   = Solver.max_iter
+    eps = Solver.epsilon
 
     M1 = sum(M[i]*randn(Float64) for i in 1:n)
     E  = eigvecs(M1)
@@ -58,14 +68,14 @@ function diagonalization(M::Vector{Matrix{C}},
     delta = sum(norm.(D))
     #println("diag off: ", err)
 
-    Info["d0"] = err
+    Solver.error = err
     nit = 0
 
     if err/delta > 5.e-2
         delta = err
         while nit < N && delta > eps
             err0 = err
-            X,Y = diagonalization_iter(D)
+            X,Y = newton_joint_diag_iter(D)
             D = [Y*D[i]*X for i in 1:length(D)]
             E = E*X
             F = Y*F
@@ -74,9 +84,10 @@ function diagonalization(M::Vector{Matrix{C}},
             delta = err0-err
             #println("Off", nit,": ", err, "   delta: ", delta)
         end
-        Info["d*"]= err
+        Solver.error = err
     end
-    Info["nIter"] = nit
+
+    Solver.nb_iter = nit
     
     Xi = fill(zero(E[1,1]),n,r)
     for i in 1:r
@@ -84,6 +95,6 @@ function diagonalization(M::Vector{Matrix{C}},
 	    Xi[j,i] = D[j+1][i,i]/D[1][i,i]
 	end
     end
-    return Xi, E, Info
+    return Xi, E, Solver
 end
 
