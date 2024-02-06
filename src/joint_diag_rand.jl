@@ -1,6 +1,5 @@
 export joint_diag, RandJointDiag
 
-
 mutable struct RandJointDiag
 end
 

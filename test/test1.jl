@@ -1,13 +1,17 @@
 using JointDiag, LinearAlgebra
 
+#include("../src/joint_diag_newton.jl")
+
 N = 4
 E = randn(N,N)
 
-eps = 1.e-6
-M1 = E*diagm([1,1,2,2])*inv(E) + eps*randn(N,N)
-M2 = E*diagm([-1,1,0,3])*inv(E)
+eps = 1.e-4
 
-M = [M1,M2]
+M1 = E*diagm([1,1,2,2])*inv(E) + eps*randn(N,N)
+M2 = E*diagm([-1,1,0,3])*inv(E) + eps*randn(N,N)
+M3 = E*diagm([1,-1,-2,3])*inv(E) + eps*randn(N,N)
+
+M = [M1,M2,M3]
 
 Xi, E, Slv = joint_diag(M, NewtonJointDiag())
 

@@ -1,5 +1,6 @@
 export norm_off, NewtonJointDiag, joint_diag
 
+
 using LinearAlgebra
 
 mutable struct NewtonJointDiag{T}
@@ -8,6 +9,7 @@ mutable struct NewtonJointDiag{T}
     info::Dict{Symbol,Any}
 end
 
+export getindex, setindex!
 function Base.getindex(slv::NewtonJointDiag{T}, s::Symbol) where T
     Base.get(slv.info, s, 0)
 end
@@ -15,11 +17,11 @@ function Base.setindex!(slv::NewtonJointDiag{T}, v, s::Symbol) where T
     slv.info[s] = v
 end
 
-NewtonJointDiag() = NewtonJointDiag(10, 1.e-3, Dict{Symbol,Any}()) 
+NewtonJointDiag() = NewtonJointDiag(10, 1.e-10, Dict{Symbol,Any}()) 
 
 # norm of off diagonal terms of a square matrix
 function norm_off(M)
-    if size(M[1],1)>1
+    if size(M,1)>1
         return sqrt(sum(abs2(M[i,j]) + abs2(M[j,i]) for i in 1:size(M,1) for j in i+1:size(M,1)))
     else
         return 0.0
@@ -73,12 +75,12 @@ Calcolo 59.4 (2022): 38. doi:10.1007/s10092-022-00484-3, https://hal.science/hal
 
 """
 function joint_diag(M::AbstractVector{<:AbstractMatrix{C}},
-                    Solver::NewtonJointDiag) where C
+                    Slv::NewtonJointDiag) where C
     n  = length(M)
     r  = size(M[1],1)
 
-    N   = Solver.max_iter
-    eps = Solver.epsilon
+    N   = Slv.max_iter
+    eps = Slv.epsilon
 
     M1 = sum(M[i]*randn(Float64) for i in 1:n)
     E  = eigvecs(M1)
@@ -89,12 +91,12 @@ function joint_diag(M::AbstractVector{<:AbstractMatrix{C}},
     err = sum(norm_off.(D))
     delta = sum(norm.(D))
 
-    #println("diag off: ", err)
+    #println("Off0: ", err, "    delta: ", err/delta)
 
-    Solver[:error] = err
+    Slv[:error] = err
     nit = 0
 
-    if err/delta > 5.e-2
+    if err/delta > eps
         delta = err
         while nit < N && delta > eps
             err0 = err
@@ -107,10 +109,10 @@ function joint_diag(M::AbstractVector{<:AbstractMatrix{C}},
             delta = err0-err
             #println("Off", nit,": ", err, "   delta: ", delta)
         end
-        Solver[:error] = err
+        Slv[:error] = err
     end
 
-    Solver[:nb_iter] = nit
+    Slv[:nb_iter] = nit
     
     Xi = fill(zero(E[1,1]),n,r)
     for i in 1:r
@@ -118,6 +120,6 @@ function joint_diag(M::AbstractVector{<:AbstractMatrix{C}},
 	    Xi[j,i] = D[j+1][i,i]/D[1][i,i]
 	end
     end
-    return Xi, E, Solver
+    return Xi, E, Slv
 end
 
