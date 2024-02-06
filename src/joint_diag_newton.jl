@@ -5,11 +5,17 @@ using LinearAlgebra
 mutable struct NewtonJointDiag{T}
     max_iter::Int
     epsilon::T
-    error::T
-    nb_iter::Int
+    info::Dict{Symbol,Any}
 end
 
-NewtonJointDiag() = NewtonJointDiag(10, 1.e-3, 0.0, 0) 
+function Base.getindex(slv::NewtonJointDiag{T}, s::Symbol) where T
+    Base.get(slv.info, s, 0)
+end
+function Base.setindex!(slv::NewtonJointDiag{T}, v, s::Symbol) where T
+    slv.info[s] = v
+end
+
+NewtonJointDiag() = NewtonJointDiag(10, 1.e-3, Dict{Symbol,Any}()) 
 
 # norm of off diagonal terms of a square matrix
 function norm_off(M)
@@ -50,7 +56,23 @@ function newton_joint_diag_iter(D)
     return X, Y
 end
 
-function joint_diag(M::Vector{Matrix{C}},
+#----------------------------------------------------------------------
+"""
+     joint_diag(M::Vector{Matrix{C}}, Solver::NewtonJointDiag)
+
+Compute the joint diagonalization of an array `M` of square matrices `M[1], ..., M[n]` by applying a Newton-type iteration to minimize the off-diagonal norm of the matrices `F*M[i]*E` with the constraint `F*E=I`. It outputs
+
+  - `X` the vectors of eigenvalues, which are the columns of X.
+  - `E` the common eigenvectors such that `M[i]*E=E*diagm(X[i,:])`
+
+It implements the method described in
+
+[KMY22] Khouja, Rima, Mourrain, Bernard, and Yakoubsohn, Jean-Claude.
+*Newton-type methods for simultaneous matrix diagonalization.*
+Calcolo 59.4 (2022): 38. doi:10.1007/s10092-022-00484-3, https://hal.science/hal-03390265.
+
+"""
+function joint_diag(M::AbstractVector{<:AbstractMatrix{C}},
                     Solver::NewtonJointDiag) where C
     n  = length(M)
     r  = size(M[1],1)
@@ -66,9 +88,10 @@ function joint_diag(M::Vector{Matrix{C}},
     D  = vcat([Matrix{C}(I,r,r)],[F*M[i]*E for i in 1:length(M)])
     err = sum(norm_off.(D))
     delta = sum(norm.(D))
+
     #println("diag off: ", err)
 
-    Solver.error = err
+    Solver[:error] = err
     nit = 0
 
     if err/delta > 5.e-2
@@ -84,10 +107,10 @@ function joint_diag(M::Vector{Matrix{C}},
             delta = err0-err
             #println("Off", nit,": ", err, "   delta: ", delta)
         end
-        Solver.error = err
+        Solver[:error] = err
     end
 
-    Solver.nb_iter = nit
+    Solver[:nb_iter] = nit
     
     Xi = fill(zero(E[1,1]),n,r)
     for i in 1:r

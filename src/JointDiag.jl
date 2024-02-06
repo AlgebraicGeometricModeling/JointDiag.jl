@@ -1,6 +1,7 @@
 module JointDiag
 
 using LinearAlgebra
+
 import Random
 
 """
@@ -10,9 +11,10 @@ Solver for joint diagonalization of matrices.
 """
 abstract type AbstractSolver end
 
-include("rand_joint_diag.jl")
-include("newton_joint_diag.jl")
+include("joint_diag_rand.jl")
+include("joint_diag_newton.jl")
 include("cluster.jl")
 include("schur.jl")
 
+include("joint_reduce.jl")
 end

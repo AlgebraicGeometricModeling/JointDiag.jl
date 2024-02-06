@@ -3,10 +3,29 @@ using JointDiag, LinearAlgebra
 N = 4
 E0 = randn(N,N)
 
-M1 = E0*diagm([1,1,2,2])*inv(E0)
-M2 = E0*diagm([-1,-1,0,3])*inv(E0)
+M01 = E0*diagm([1,1,2,2])*inv(E0)
+M02 = E0*diagm([-1,-1,0,3])*inv(E0)
 
-M = [M1,M2]
+M0 = [M01,M02]
 
-Xi, E = joint_diag(M, RandJointDiag())
+X0, E0 = joint_diag(M0, RandJointDiag())
 
+R0 = [E0*diagm(X0[i,:])*inv(E0) for i in 1:length(M0)]
+println("Non diagonalizable case: ",norm.(M0-R0))
+
+M11 = [0 0 0 0;
+       1 0 0 0;
+       0 0 0 0;
+       0 0 1 0]
+
+M12 = [0 0 2 0;
+       0 0 0 2;
+       1 0 0 0;
+       0 1 0 0]
+
+M1 = [M11, M12]
+
+X1, E1 = joint_diag(M1, RandJointDiag())
+
+R1 = [E1*diagm(X1[i,:])*inv(E1) for i in 1:length(M1)]
+println("Non diagonalizable case: "norm.(M1-R1))
