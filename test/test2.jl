@@ -28,4 +28,4 @@ M1 = [M11, M12]
 X1, E1 = joint_diag(M1, RandJointDiag())
 
 R1 = [E1*diagm(X1[i,:])*inv(E1) for i in 1:length(M1)]
-println("Non diagonalizable case: "norm.(M1-R1))
+println("Non diagonalizable case: ",norm.(M1-R1))
