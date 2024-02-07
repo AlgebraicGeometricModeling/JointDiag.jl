@@ -1,10 +1,9 @@
-using Test
-using JointDiag, LinearAlgebra
+using Test, JointDiag, LinearAlgebra
 
 N = 4
 E = randn(N,N)
 
-eps = 1.e-4
+eps = 1.e-5
 
 M1 = E*diagm([1,1,2,2])*inv(E) + eps*randn(N,N)
 M2 = E*diagm([-1,1,0,3])*inv(E) + eps*randn(N,N)
