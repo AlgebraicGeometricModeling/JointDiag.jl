@@ -1,3 +1,4 @@
+using Test
 using JointDiag, LinearAlgebra
 
 N = 4
@@ -11,7 +12,7 @@ M0 = [M01,M02]
 X0, E0 = joint_diag(M0, RandJointDiag())
 
 R0 = [E0*diagm(X0[i,:])*inv(E0) for i in 1:length(M0)]
-println("Non diagonalizable case: ",norm.(M0-R0))
+@test norm.(M0-R0) ≈ [8.74, 31.36] rtol=1e-3
 
 M11 = [0 0 0 0;
        1 0 0 0;
@@ -28,4 +29,4 @@ M1 = [M11, M12]
 X1, E1 = joint_diag(M1, RandJointDiag())
 
 R1 = [E1*diagm(X1[i,:])*inv(E1) for i in 1:length(M1)]
-println("Non diagonalizable case: ", norm.(M1-R1))
+@test norm.(M1-R1) ≈ [√2, √2]

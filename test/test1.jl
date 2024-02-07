@@ -1,6 +1,5 @@
+using Test
 using JointDiag, LinearAlgebra
-
-#include("../src/joint_diag_newton.jl")
 
 N = 4
 E = randn(N,N)
@@ -16,4 +15,4 @@ M = [M1,M2,M3]
 Xi, E, Slv = joint_diag(M, NewtonJointDiag())
 
 R0 = [E*diagm(Xi[i,:])*inv(E) for i in 1:length(M)]
-norm.(M-R0)
+@test all(norm.(M-R0) .< 0.1)
