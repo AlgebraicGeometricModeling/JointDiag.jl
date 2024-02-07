@@ -1,5 +1,4 @@
-using Test
-using JointDiag, LinearAlgebra
+using Test, JointDiag, LinearAlgebra
 
 N = 4
 E0 = randn(N,N)
