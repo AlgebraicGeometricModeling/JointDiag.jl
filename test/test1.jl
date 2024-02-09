@@ -11,7 +11,7 @@ M3 = E*diagm([1,-1,-2,3])*inv(E) + eps*randn(N,N)
 
 M = [M1,M2,M3]
 
-Xi, E, Slv = joint_diag(M, NewtonJointDiag())
+Xi, E0, Slv = joint_diag(M, RandJointDiag())
 
-R0 = [E*diagm(Xi[i,:])*inv(E) for i in 1:length(M)]
+R0 = [E0*diagm(Xi[i,:])*inv(E0) for i in 1:length(M)]
 @test all(norm.(M-R0) .< 0.1)
