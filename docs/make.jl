@@ -12,7 +12,7 @@ makedocs(
          build = "JointDiag.jl/docs",
          source = dir,
          pages = Any[
-                     "Home" => "/../README.md",
+                     "Home" => "index.md",
                      "Examples" => Expl,
                      "Functions & types" => Code
                      ],
@@ -20,8 +20,8 @@ makedocs(
          doctest = false
          )
 
-deploydocs(
-           repo = "github.com/AlgebraicGeometricModeling/JointDiag.jl.git",
-           target = "site"
-           )
+#deploydocs(
+#           repo = Remotes.GitHub("AlgebraicGeometricModeling", "JointDiag.jl"),
+#           target = "site"
+#           )
 
