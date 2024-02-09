@@ -47,5 +47,6 @@ X1, E1 = joint_diag(M1, RandJointDiag())
 
 Xi1 = [ 0   0   0   0 ;
         √2 √2 -√2 -√2 ]
+
 @test mmt(X1) ≈ mmt(Xi1) rtol=1e-3 
 
