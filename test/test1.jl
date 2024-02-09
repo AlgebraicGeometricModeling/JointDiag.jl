@@ -17,8 +17,8 @@ Xi, E0, Slv = joint_diag(M, RandJointDiag())
 
 @test all(norm.(M-[E0*diagm(Xi[i,:])*inv(E0) for i in 1:length(M)]) .< 0.1)
 
-eps = 1.e-5
-M1 = M + eps*[randn(N,N) for i in 1:length(M)]
+eps = 1.e-6
+M1  = M + eps*[randn(N,N) for i in 1:length(M)]
 
 Xi1, E1, Slv1 = joint_diag(M1, NewtonJointDiag())
 
