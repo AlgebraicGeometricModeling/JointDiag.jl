@@ -7,12 +7,12 @@ Code = map(file -> joinpath("code", file), filter(x ->endswith(x, "md"), readdir
 
 makedocs(
          sitename = "JointDiag",
-         authors = "B. Mourrain",
+         authors = "B. Legat, B. Mourrain",
          modules = [JointDiag],
          build = "JointDiag.jl/docs",
          source = dir,
          pages = Any[
-                     "Home" => "index.md",
+                     "Home" => "/../README.md",
                      "Examples" => Expl,
                      "Functions & types" => Code
                      ],

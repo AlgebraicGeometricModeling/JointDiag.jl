@@ -25,8 +25,6 @@ M0 = [M01,M02]
 
 X0, E0 = joint_diag(M0, RandJointDiag())
 
-#R0 = [E0*diagm(X0[i,:])*inv(E0) for i in 1:length(M0)]
-
 @test mmt(X0) ≈ mmt(Xi) rtol=1e-3
 
 M11 = [0 0 0 0;
