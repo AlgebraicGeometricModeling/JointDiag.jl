@@ -7,6 +7,4 @@
 
 Joint diagonalisation of pencils of matrices
 
-## Documentation
-
-[Here](https://algebraicgeometricmodeling.github.io/JointDiag.jl/)
+## [Documentation](https://algebraicgeometricmodeling.github.io/JointDiag.jl/)
