@@ -15,11 +15,11 @@ It outputs
 
 """
 function joint_diag(M::Vector{Matrix{C}},
-                    Solver::RandJointDiag) where C
+                    Slv::RandJointDiag) where C
 
     M0 = sum(M[i]*randn() for i in 1:length(M))
 
-    E  = schur(M0).vectors
+    E  = eigvecs(M0)
 
     X = fill(zero(E[1,1]),length(M),size(M0,1))
     for j in 1:length(M)
@@ -29,5 +29,5 @@ function joint_diag(M::Vector{Matrix{C}},
         end
     end
 
-    X, E
+    X, E, Slv
 end
