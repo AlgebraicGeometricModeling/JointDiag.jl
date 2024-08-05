@@ -67,26 +67,21 @@ Simultaneous diagonalization of commuting matrices using the method of [CGT97].
 *A reordered Schur factorization method for zero-dimensional polynomial systems with multiple roots*
 Proceedings of the 1997 international symposium on Symbolic and algebraic computation, 1997, 133-140
 """
-struct ReorderedSchurSolver{T,RNGT<:Random.AbstractRNG} <: AbstractSolver
+struct ReorderedSchurSolver{T} <: AbstractSolver
     ɛ::T
-    rng::RNGT
 end
-function ReorderedSchurSolver(ɛ)
-    return ReorderedSchurSolver(ɛ, Random.GLOBAL_RNG)
-end
+
 function ReorderedSchurSolver{T}() where {T}
     return ReorderedSchurSolver(Base.rtoldefault(real(T)))
 end
 
-# Deterministic part
-function _solve(
+function joint_diag(
     Ms::AbstractVector{<:AbstractMatrix{T}},
-    λ,
+    M0::AbstractMatrix,
     solver::ReorderedSchurSolver,
 ) where {T<:Real}
-    @assert length(Ms) == length(λ)
-    n = length(λ)
-    Z, clusters = clusterordschur(sum(λ .* Ms), solver.ɛ)
+    n = length(Ms)
+    Z, clusters = clusterordschur(M0, solver.ɛ)
     r = length(clusters)
     X = zeros(T, n, r)
     for k in 1:r
@@ -99,13 +94,4 @@ function _solve(
         end
     end
     return Z, X
-end
-
-function joint_diag(
-    matrices::AbstractVector{<:AbstractMatrix},
-    solver::AbstractSolver,
-)
-    λ = rand(solver.rng, length(matrices))
-    λ /= sum(λ)
-    return _solve(matrices, λ, solver)
 end

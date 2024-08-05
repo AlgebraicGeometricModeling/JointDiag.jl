@@ -23,5 +23,4 @@ end
 using Random
 schur_solver = JointDiag.ReorderedSchurSolver(
     sqrt(eps(Float64)),
-    MersenneTwister(0),
 )

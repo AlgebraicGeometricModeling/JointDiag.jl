@@ -3,7 +3,7 @@ export norm_off, NewtonJointDiag, joint_diag
 
 using LinearAlgebra
 
-mutable struct NewtonJointDiag{T}
+mutable struct NewtonJointDiag{T} <: AbstractSolver
     max_iter::Int
     epsilon::T
     info::Dict{Symbol,Any}
@@ -74,16 +74,18 @@ It implements the method described in
 Calcolo 59.4 (2022): 38. doi:10.1007/s10092-022-00484-3, https://hal.science/hal-03390265.
 
 """
-function joint_diag(M::AbstractVector{<:AbstractMatrix{C}},
-                    Slv::NewtonJointDiag) where C
+function joint_diag(
+    M::AbstractVector{<:AbstractMatrix{C}},
+    M0::AbstractMatrix,
+    Slv::NewtonJointDiag,
+) where C
     n  = length(M)
     r  = size(M[1],1)
 
     N   = Slv.max_iter
     eps = Slv.epsilon
 
-    M1 = sum(M[i]*randn(C) for i in 1:n)
-    E  = eigvecs(M1)
+    E  = eigvecs(M0)
 
     F  = inv(E)
     
