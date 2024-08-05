@@ -20,12 +20,12 @@ function joint_diag(M::Vector{Matrix{C}},
     M0 = sum(M[i]*randn() for i in 1:length(M))
 
     E  = eigvecs(M0)
+    F = inv(E)
 
     X = fill(zero(E[1,1]),length(M),size(M0,1))
     for j in 1:length(M)
-        F = inv(E)
         Yj = F*(M[j]*E)
-        for i in 1:size(M0,1)
+        for i in axes(M0,1)
             X[j,i]= Yj[i,i] #(Y[:,i]\Yj[:,i])[1] #D[i,i]
         end
     end

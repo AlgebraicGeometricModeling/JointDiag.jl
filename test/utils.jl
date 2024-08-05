@@ -1,7 +1,7 @@
 function testelements(X, Y; atol = Base.rtoldefault(Float64), kwargs...)
-    @test length(X) == length(Y)
-    for y in Y
-        @test any(x -> isapprox(x, y; atol = atol, kwargs...), X)
+    @test size(X) == size(Y)
+    for y in eachcol(Y)
+        @test any(x -> isapprox(x, y; atol = atol, kwargs...), eachcol(X))
     end
 end
 function testelementstypes(X, Y; kwargs...)

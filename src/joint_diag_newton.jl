@@ -82,12 +82,12 @@ function joint_diag(M::AbstractVector{<:AbstractMatrix{C}},
     N   = Slv.max_iter
     eps = Slv.epsilon
 
-    M1 = sum(M[i]*randn(Float64) for i in 1:n)
+    M1 = sum(M[i]*randn(C) for i in 1:n)
     E  = eigvecs(M1)
 
     F  = inv(E)
     
-    D  = vcat([Matrix{C}(I,r,r)],[F*M[i]*E for i in 1:length(M)])
+    D  = vcat([Matrix{C}(I,r,r)],[F*M[i]*E for i in eachindex(M)])
     err = sum(norm_off.(D))
     delta = sum(norm.(D))
 
@@ -101,7 +101,7 @@ function joint_diag(M::AbstractVector{<:AbstractMatrix{C}},
         while nit < N && delta > eps
             err0 = err
             X,Y = newton_joint_diag_iter(D)
-            D = [Y*D[i]*X for i in 1:length(D)]
+            D = [Y*D[i]*X for i in eachindex(D)]
             E = E*X
             F = Y*F
             nit+=1

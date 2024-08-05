@@ -88,20 +88,20 @@ function _solve(
     n = length(λ)
     Z, clusters = clusterordschur(sum(λ .* Ms), solver.ɛ)
     r = length(clusters)
-    vals = [zeros(T, n) for _ in 1:r]
+    X = zeros(T, n, r)
     for k in 1:r
         nk = length(clusters[k])
         for j in clusters[k]
             q = Z[:, j]
             for i in 1:n
-                vals[k][i] += dot(q, Ms[i] * q) / nk
+                X[i, k] += dot(q, Ms[i] * q) / nk
             end
         end
     end
-    return vals
+    return Z, X
 end
 
-function solve(
+function joint_diag(
     matrices::AbstractVector{<:AbstractMatrix},
     solver::AbstractSolver,
 )
