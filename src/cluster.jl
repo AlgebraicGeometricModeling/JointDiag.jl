@@ -8,14 +8,13 @@ Clustering the values `v` following [CGT97].
 Proceedings of the 1997 international symposium on Symbolic and algebraic computation, 1997, 133-140
 """
 function cluster_eigenvalues(_atol, v)
-    A = typeof(_atol(1))
     V = real(eltype(v))
 
-    ONE = one(one(V) / one(A))
+    ONE = one(V)
 
     clusters = Vector{Int}[]
     λ = V[]
-    atol = A[]
+    atol = V[]
     # condition_number requires that conjugate pair need to be treated together so we first need to handle them
     # If they are in the same cluster then pair them, otherwise it is complex solution so we reject them
     i = firstindex(v)
