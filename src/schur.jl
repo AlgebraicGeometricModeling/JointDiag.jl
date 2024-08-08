@@ -9,13 +9,7 @@ function condition_number(sf::Schur, I)
         select[i] = 1
     end
     try
-        return LinearAlgebra.LAPACK.trsen!(
-            'E',
-            'N',
-            select,
-            copy(sf.T),
-            copy(sf.Z),
-        )[4]
+        return LinearAlgebra.LAPACK.trsen!('E', 'N', select, copy(sf.T), copy(sf.Z))[4]
     catch err
         if err isa LinearAlgebra.LAPACKException
             ε = eps(real(eltype(sf.values)))
