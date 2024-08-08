@@ -23,7 +23,7 @@ function norm_off(M)
     if size(M, 1) > 1
         return sqrt(
             sum(
-                abs2(M[i, j]) + abs2(M[j, i]) for i in 1:size(M, 1) for j in i+1:size(M, 1)
+                abs2(M[i, j]) + abs2(M[j, i]) for i in axes(M, 1) for j in i+1:size(M, 1)
             ),
         )
     else

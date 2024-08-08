@@ -4,6 +4,13 @@ function testelements(X, Y; atol = Base.rtoldefault(Float64), kwargs...)
         @test any(x -> isapprox(x, y; atol = atol, kwargs...), eachcol(X))
     end
 end
+
+function testelements(Y, args...; kwargs...)
+    X, _, solver = JointDiag.joint_diag(args...)
+    Xc = JointDiag.cluster(X, solver, Base.rtoldefault(Float64))
+    testelements(Xc, Y; kwargs...)
+end
+
 function testelementstypes(X, Y; kwargs...)
     testelements(X, Y; kwargs...)
     for T in [Rational{Int}, Float64]
@@ -20,5 +27,4 @@ function testelementstypes(X, Y; kwargs...)
 end
 
 # We use a fixed RNG in the tests to decrease nondeterminism. There is still nondeterminism in LAPACK though
-using Random
-schur_solver = JointDiag.ReorderedSchurSolver(sqrt(eps(Float64)))
+schur_solver = JointDiag.SchurJointDiag()

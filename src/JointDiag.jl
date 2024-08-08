@@ -29,6 +29,18 @@ function joint_diag(
     return joint_diag(matrices, sum(λ .* matrices), solver)
 end
 
+function solution_matrix(matrices::AbstractVector{<:AbstractMatrix{T}}, left_factor, right_factor) where {T}
+    X = zeros(eltype(left_factor), length(matrices), size(right_factor, 2))
+    for j in axes(X, 2)
+        left = left_factor[j, :]
+        right = right_factor[:, j]
+        for i in axes(X, 1)
+            X[i, j] = LinearAlgebra.transpose(left) * matrices[i] * right
+        end
+    end
+    return X
+end
+
 include("joint_diag_rand.jl")
 include("joint_diag_newton.jl")
 

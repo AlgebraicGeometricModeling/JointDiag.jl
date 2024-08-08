@@ -25,7 +25,7 @@ M02 = E0 * diagm(Xi[2, :]) * inv(E0)
 
 M0 = [M01, M02]
 
-X0, E0 = joint_diag(M0, RandJointDiag())
+X0, E0 = joint_diag(M0, EigenJointDiag())
 
 @test mmt(X0) ≈ mmt(Xi) rtol = 1e-3
 
@@ -45,7 +45,7 @@ M12 = [
 
 M1 = [M11, M12]
 
-X1, E1 = joint_diag(M1, RandJointDiag())
+X1, E1 = joint_diag(M1, EigenJointDiag())
 
 #R1 = [E1*diagm(X1[i,:])*inv(E1) for i in 1:length(M1)]
 
