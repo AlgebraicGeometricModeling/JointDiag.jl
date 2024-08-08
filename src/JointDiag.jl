@@ -29,7 +29,11 @@ function joint_diag(
     return joint_diag(matrices, sum(λ .* matrices), solver)
 end
 
-function solution_matrix(matrices::AbstractVector{<:AbstractMatrix{T}}, left_factor, right_factor) where {T}
+function solution_matrix(
+    matrices::AbstractVector{<:AbstractMatrix{T}},
+    left_factor,
+    right_factor,
+) where {T}
     X = zeros(eltype(left_factor), length(matrices), size(right_factor, 2))
     for j in axes(X, 2)
         left = left_factor[j, :]

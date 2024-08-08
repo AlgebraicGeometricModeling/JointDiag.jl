@@ -22,9 +22,7 @@ NewtonJointDiag() = NewtonJointDiag(10, 1.e-10, Dict{Symbol,Any}())
 function norm_off(M)
     if size(M, 1) > 1
         return sqrt(
-            sum(
-                abs2(M[i, j]) + abs2(M[j, i]) for i in axes(M, 1) for j in i+1:size(M, 1)
-            ),
+            sum(abs2(M[i, j]) + abs2(M[j, i]) for i in axes(M, 1) for j in i+1:size(M, 1)),
         )
     else
         return 0.0

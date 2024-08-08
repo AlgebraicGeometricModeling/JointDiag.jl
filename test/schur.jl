@@ -45,13 +45,7 @@ function _test_cgt96_e51(T, solver)
         Z Iɛ
     ]
     α = T(0.219)
-    testelements(
-        T[1.0 -1.0; 1.0 1.0; -1.0 1.0]',
-        [A, B],
-        [α, 1 - α],
-        solver;
-        rtol = 1e-7,
-    )
+    testelements(T[1.0 -1.0; 1.0 1.0; -1.0 1.0]', [A, B], [α, 1 - α], solver; rtol = 1e-7)
     return
 end
 
@@ -64,11 +58,7 @@ end
 
 function test_empty(T)
     for n in 1:2
-        testelements(
-            zeros(T, n, 0),
-            [zeros(T, 0, 0) for _ in 1:n],
-            schur_solver,
-        )
+        testelements(zeros(T, n, 0), [zeros(T, 0, 0) for _ in 1:n], schur_solver)
     end
 end
 

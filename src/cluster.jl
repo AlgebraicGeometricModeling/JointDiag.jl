@@ -39,14 +39,12 @@ function cluster_eigenvalues(_atol, v)
         end
     end
 
-
     # For eigenvalues not clustered yet, their eigenvalues is quite large.
     # Therefore, if we cluster all i, j close enough at once we might cluster too much
     # The technique used here is to cluster only the closest pair.
     # Once they are matched, a new atol is computed and if the cluster is complete,
     # this atol will be small which will avoid addition of new eigenvalues.
     while true
-        @show clusters
         σ = sortperm(λ)
         I = 0
         J = 0
@@ -55,9 +53,7 @@ function cluster_eigenvalues(_atol, v)
             i = σ[_i]
             for _j in 1:(_i-1)
                 j = σ[_j]
-                @show λ[i], λ[j], atol[i], atol[j]
                 d = abs(λ[i] - λ[j]) / min(atol[i], atol[j])
-                @show d
                 if d < best
                     I = i
                     J = j
@@ -65,7 +61,6 @@ function cluster_eigenvalues(_atol, v)
                 end
             end
         end
-        @show best
         if best < ONE
             # merge I with J
             nI = length(clusters[I])
