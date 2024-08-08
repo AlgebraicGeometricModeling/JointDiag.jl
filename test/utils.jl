@@ -21,6 +21,4 @@ end
 
 # We use a fixed RNG in the tests to decrease nondeterminism. There is still nondeterminism in LAPACK though
 using Random
-schur_solver = JointDiag.ReorderedSchurSolver(
-    sqrt(eps(Float64)),
-)
+schur_solver = JointDiag.ReorderedSchurSolver(sqrt(eps(Float64)))

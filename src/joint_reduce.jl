@@ -3,14 +3,16 @@ export joint_reduce, JRS
 using LinearAlgebra
 
 rkf_eps = eps::Float64 -> function (S)
-  i :: Int = 1;
-  while i<= length(S) && S[i]/S[1] > eps
-    i+= 1;
-  end
-  i-1;
+    i::Int = 1
+    while i <= length(S) && S[i] / S[1] > eps
+        i += 1
+    end
+    i - 1
 end
 
-rkf_cst = r::Int64 -> function (S) return r end
+rkf_cst = r::Int64 -> function (S)
+    return r
+end
 
 """
 Describe the Joint Reduce Solver
@@ -25,8 +27,8 @@ mutable struct JRS
 end
 
 JRS() = JRS(rkf_eps(1.e-6), RandJointDiag())
-JRS(r::Int, slvr = RandJointDiag()) = JRS(rkf_cst(r),slvr)
-JRS(epsilon::Float64, slvr = RandJointDiag()) = JRS(rkf_eps(epsilon),slvr)
+JRS(r::Int, slvr = RandJointDiag()) = JRS(rkf_cst(r), slvr)
+JRS(epsilon::Float64, slvr = RandJointDiag()) = JRS(rkf_eps(epsilon), slvr)
 
 """
      joint_reduce(H::Vector{Matrix{C}}, Solver = JRS())
@@ -39,33 +41,31 @@ It outputs
   - `V` the right factor, which rows are orthogonal
 
 """
-function joint_reduce(H::Vector{Matrix{C}},
-                      Slv::JRS = JRS()) where C
-
-    H0 = sum(H[i]*randn() for i in 1:length(H))
+function joint_reduce(H::Vector{Matrix{C}}, Slv::JRS = JRS()) where {C}
+    H0 = sum(H[i] * randn() for i in 1:length(H))
 
     n = length(H)
 
     U, S, V = LinearAlgebra.svd(H0)       # H0= U*diag(S)*V'
     r = Slv.rank(S)
 
-    Sr  = S[1:r]
+    Sr = S[1:r]
     Sri = LinearAlgebra.diagm(inv.(Sr))
 
-    M = [ Sri*(U[:,1:r]')*H[i]*(V[:,1:r]) for i in 1:length(H) ]
+    M = [Sri * (U[:, 1:r]') * H[i] * (V[:, 1:r]) for i in 1:length(H)]
 
     if r > 1
         Xi, E = JointDiag.joint_diag(M, Slv.diag_solver)
     else
         Xi = zeros(C, n, r)
         for i in 1:n
-            Xi[i,1] = M[i][1,1]
+            Xi[i, 1] = M[i][1, 1]
         end
-        E  = ones(C, 1, 1)
+        E = ones(C, 1, 1)
     end
 
-    Uxi = (U[:,1:r].*Sr')*E
-    Vxi = (E\ V[:,1:r]')
+    Uxi = (U[:, 1:r] .* Sr') * E
+    Vxi = (E \ V[:, 1:r]')
 
     return Xi, Uxi, Vxi, Slv
 end

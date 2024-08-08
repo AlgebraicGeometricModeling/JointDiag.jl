@@ -47,7 +47,7 @@ function _test_cgt96_e51(solver)
     α = 0.219
     testelements(
         JointDiag.joint_diag([A, B], [α, 1 - α], solver)[2],
-        [1.0  -1.0; 1.0 1.0; -1.0 1.0]';
+        [1.0 -1.0; 1.0 1.0; -1.0 1.0]';
         rtol = 1e-7,
     )
     return
