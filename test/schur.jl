@@ -20,8 +20,8 @@ function test_lapack_exception()
     ]
     λ = [0.285173013664907, 0.714826986335093]
     # Throws `LAPACKException(1)`
-    el = JointDiag._solve([A, B], λ, schur_solver)
-    testelements(el, [[0, 0]]; atol = 1e-10)
+    el = JointDiag.joint_diag([A, B], λ, schur_solver)[2]
+    testelements(el, reshape([0; 0], 2, 1); atol = 1e-10)
     return
 end
 
@@ -46,8 +46,8 @@ function _test_cgt96_e51(solver)
     ]
     α = 0.219
     testelements(
-        JointDiag._solve([A, B], [α, 1 - α], solver),
-        [[1.0, -1.0], [1.0, 1.0], [-1.0, 1.0]];
+        JointDiag.joint_diag([A, B], [α, 1 - α], solver)[2],
+        [1.0  -1.0; 1.0 1.0; -1.0 1.0]';
         rtol = 1e-7,
     )
     return

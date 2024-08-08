@@ -1,6 +1,6 @@
 export joint_diag, RandJointDiag
 
-mutable struct RandJointDiag
+mutable struct RandJointDiag <: AbstractSolver
 end
 
 
@@ -14,18 +14,19 @@ It outputs
   - `E` the common eigenvectors such that `M[i]*E=E*diagm(X[i,:])`
 
 """
-function joint_diag(M::Vector{Matrix{C}},
-                    Slv::RandJointDiag) where C
-
-    M0 = sum(M[i]*randn() for i in 1:length(M))
+function joint_diag(
+    M::Vector{Matrix{C}},
+    M0::AbstractMatrix,
+    Slv::RandJointDiag,
+) where C
 
     E  = eigvecs(M0)
+    F = inv(E)
 
     X = fill(zero(E[1,1]),length(M),size(M0,1))
     for j in 1:length(M)
-        F = inv(E)
         Yj = F*(M[j]*E)
-        for i in 1:size(M0,1)
+        for i in axes(M0,1)
             X[j,i]= Yj[i,i] #(Y[:,i]\Yj[:,i])[1] #D[i,i]
         end
     end

@@ -50,18 +50,18 @@ function joint_reduce(H::Vector{Matrix{C}},
     r = Slv.rank(S)
 
     Sr  = S[1:r]
-    Sri = LinearAlgebra.diagm([one(C)/S[i] for i in 1:r])
+    Sri = LinearAlgebra.diagm(inv.(Sr))
 
     M = [ Sri*(U[:,1:r]')*H[i]*(V[:,1:r]) for i in 1:length(H) ]
 
     if r > 1
         Xi, E = JointDiag.joint_diag(M, Slv.diag_solver)
     else
-        Xi = fill(zero(C),n,r)
+        Xi = zeros(C, n, r)
         for i in 1:n
             Xi[i,1] = M[i][1,1]
         end
-        E  = fill(1.0, 1,1)
+        E  = ones(C, 1, 1)
     end
 
     Uxi = (U[:,1:r].*Sr')*E

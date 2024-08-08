@@ -3,7 +3,7 @@ export norm_off, NewtonJointDiag, joint_diag
 
 using LinearAlgebra
 
-mutable struct NewtonJointDiag{T}
+mutable struct NewtonJointDiag{T} <: AbstractSolver
     max_iter::Int
     epsilon::T
     info::Dict{Symbol,Any}
@@ -74,20 +74,22 @@ It implements the method described in
 Calcolo 59.4 (2022): 38. doi:10.1007/s10092-022-00484-3, https://hal.science/hal-03390265.
 
 """
-function joint_diag(M::AbstractVector{<:AbstractMatrix{C}},
-                    Slv::NewtonJointDiag) where C
+function joint_diag(
+    M::AbstractVector{<:AbstractMatrix{C}},
+    M0::AbstractMatrix,
+    Slv::NewtonJointDiag,
+) where C
     n  = length(M)
     r  = size(M[1],1)
 
     N   = Slv.max_iter
     eps = Slv.epsilon
 
-    M1 = sum(M[i]*randn(Float64) for i in 1:n)
-    E  = eigvecs(M1)
+    E  = eigvecs(M0)
 
     F  = inv(E)
     
-    D  = vcat([Matrix{C}(I,r,r)],[F*M[i]*E for i in 1:length(M)])
+    D  = vcat([Matrix{C}(I,r,r)],[F*M[i]*E for i in eachindex(M)])
     err = sum(norm_off.(D))
     delta = sum(norm.(D))
 
@@ -101,7 +103,7 @@ function joint_diag(M::AbstractVector{<:AbstractMatrix{C}},
         while nit < N && delta > eps
             err0 = err
             X,Y = newton_joint_diag_iter(D)
-            D = [Y*D[i]*X for i in 1:length(D)]
+            D = [Y*D[i]*X for i in eachindex(D)]
             E = E*X
             F = Y*F
             nit+=1
