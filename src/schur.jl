@@ -26,22 +26,14 @@ end
 
 # Manocha, D. & Demmel, J. Algorithms for intersecting parametric and algebraic curves II: multiple intersections
 # Graphical Models and Image Processing, Elsevier, 1995, 57, 81-100
-function clusterordschur(M::AbstractMatrix{<:Real}, ɛ)
-    if isempty(M)
-        # See bug JuliaLang/julia#...
-        return Matrix{float(eltype(M))}(undef, 0, 0), Vector{Int}[]
-    else
-        return _clusterordschur(M, ɛ)
-    end
-end
-function _clusterordschur(M::AbstractMatrix{BigFloat}, ɛ)
-    Z, clusters = _clusterordschur(Float64.(M), ɛ)
+function clusterordschur(M::AbstractMatrix{BigFloat}, ɛ)
+    Z, clusters = clusterordschur(Float64.(M), ɛ)
     return convert(Matrix{BigFloat}, Z), clusters
 end
-function _clusterordschur(M::AbstractMatrix{<:Real}, ɛ)
-    # M = Z * T * Z' and "values" gives the eigenvalues
+function clusterordschur(M::AbstractMatrix{<:Real}, ɛ)
+    # `M = Z * T * Z'` and `values` gives the eigenvalues
     sf = LinearAlgebra.schur(M)
-    # documentation says that the error on the eigenvalues is ɛ * norm(T) / condition_number
+    # documentation says that the error on the eigenvalues is `ɛ * norm(T) / condition_number`
     nT = norm(sf.T)
     clusters = cluster_eigenvalues(sf.values) do I
         return ɛ * nT / condition_number(sf, I)
