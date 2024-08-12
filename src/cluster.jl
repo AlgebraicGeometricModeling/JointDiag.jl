@@ -1,3 +1,5 @@
+export cluster
+
 """
     cluster_eigenvalues(_atol, v)
 
@@ -75,4 +77,19 @@ function cluster_eigenvalues(_atol, v)
     end
 
     return clusters
+end
+
+function cluster(X, solver, ɛ)
+    clusters = cluster_eigenvalues(cluster_arguments(X, solver, ɛ)...)
+    X_clustered = similar(X, size(X, 1), length(clusters))
+    for j in axes(X_clustered, 2)
+        for i in axes(X_clustered, 1)
+            X_clustered[i, j] = sum(X[i, k] for k in clusters[j]) / length(clusters[j])
+        end
+    end
+    return X_clustered
+end
+
+function cluster_arguments(X, ::AbstractSolver, ɛ)
+    return _ -> ɛ, eachcol(X)
 end

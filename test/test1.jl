@@ -15,7 +15,7 @@ M3 = E * diagm(X[3, :]) * inv(E)
 
 M = [M1, M2, M3]
 
-Xi, E0, Slv = joint_diag(M, RandJointDiag())
+Xi, E0, Slv = joint_diag(M, EigenJointDiag())
 
 @test all(norm.(M - [E0 * diagm(Xi[i, :]) * inv(E0) for i in 1:length(M)]) .< 0.1)
 

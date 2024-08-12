@@ -26,9 +26,9 @@ mutable struct JRS
     diag_solver::Any
 end
 
-JRS() = JRS(rkf_eps(1.e-6), RandJointDiag())
-JRS(r::Int, slvr = RandJointDiag()) = JRS(rkf_cst(r), slvr)
-JRS(epsilon::Float64, slvr = RandJointDiag()) = JRS(rkf_eps(epsilon), slvr)
+JRS() = JRS(rkf_eps(1.e-6), EigenJointDiag())
+JRS(r::Int, slvr = EigenJointDiag()) = JRS(rkf_cst(r), slvr)
+JRS(epsilon::Float64, slvr = EigenJointDiag()) = JRS(rkf_eps(epsilon), slvr)
 
 """
      joint_reduce(H::Vector{Matrix{C}}, Solver = JRS())
