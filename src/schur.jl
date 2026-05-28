@@ -1,5 +1,47 @@
 using LinearAlgebra
 
+# Manocha, D. & Demmel, J. Algorithms for intersecting parametric and algebraic curves II: multiple intersections
+# Graphical Models and Image Processing, Elsevier, 1995, 57, 81-100
+function _schur(M::AbstractMatrix{BigFloat})
+    sf, Z = _schur(Float64.(M))
+    return sf, convert(Matrix{BigFloat}, Z)
+end
+function _schur(M::AbstractMatrix{<:Real})
+    # `M = Z * T * Z'` and `values` gives the eigenvalues
+    sf = LinearAlgebra.schur(M)
+    return sf, sf.Z
+end
+
+"""
+    mutable struct SchurJointDiag <: AbstractSolver
+        factorization::Union{Nothing,LinearAlgebra.Schur}
+    end
+
+
+Simultaneous diagonalization of commuting matrices using the method of [CGT97].
+
+[CGT97] Corless, R. M.; Gianni, P. M. & Trager, B. M.
+*A reordered Schur factorization method for zero-dimensional polynomial systems with multiple roots*
+Proceedings of the 1997 international symposium on Symbolic and algebraic computation, 1997, 133-140
+"""
+mutable struct SchurJointDiag <: AbstractSolver
+    factorization::Union{Nothing,LinearAlgebra.Schur}
+
+    function SchurJointDiag()
+        return new(nothing)
+    end
+end
+
+function joint_diag(
+    Ms::AbstractVector{<:AbstractMatrix{T}},
+    M0::AbstractMatrix,
+    solver::SchurJointDiag,
+) where {T<:Real}
+    sf, Z = _schur(M0)
+    solver.factorization = sf
+    return solution_matrix(Ms, Z', Z), Z, solver
+end
+
 # If i, i+1 are conjugate pair, then they need to be either both in I or both not in I.
 # If one of them is in I and the other is not then LAPACK will consider that both of them are in I.
 function condition_number(sf::Schur, I)
@@ -9,13 +51,7 @@ function condition_number(sf::Schur, I)
         select[i] = 1
     end
     try
-        return LinearAlgebra.LAPACK.trsen!(
-            'E',
-            'N',
-            select,
-            copy(sf.T),
-            copy(sf.Z),
-        )[4]
+        return LinearAlgebra.LAPACK.trsen!('E', 'N', select, copy(sf.T), copy(sf.Z))[4]
     catch err
         if err isa LinearAlgebra.LAPACKException
             ε = eps(real(eltype(sf.values)))
@@ -30,82 +66,8 @@ function condition_number(sf::Schur, I)
     end
 end
 
-# Manocha, D. & Demmel, J. Algorithms for intersecting parametric and algebraic curves II: multiple intersections
-# Graphical Models and Image Processing, Elsevier, 1995, 57, 81-100
-function clusterordschur(M::AbstractMatrix{<:Real}, ɛ)
-    if isempty(M)
-        # See bug JuliaLang/julia#...
-        return Matrix{float(eltype(M))}(undef, 0, 0), Vector{Int}[]
-    else
-        return _clusterordschur(M, ɛ)
-    end
-end
-function _clusterordschur(M::AbstractMatrix{BigFloat}, ɛ)
-    Z, clusters = _clusterordschur(Float64.(M), ɛ)
-    return convert(Matrix{BigFloat}, Z), clusters
-end
-function _clusterordschur(M::AbstractMatrix{<:Real}, ɛ)
-    # M = Z * T * Z' and "values" gives the eigenvalues
-    sf = LinearAlgebra.schur(M)
-    # documentation says that the error on the eigenvalues is ɛ * norm(T) / condition_number
-    nT = norm(sf.T)
-    clusters = cluster_eigenvalues(sf.values) do I
-        return ɛ * nT / condition_number(sf, I)
-    end
-    return sf.Z, clusters
-end
-
-"""
-    struct ReorderedSchurSolver{T,RNGT<:Random.AbstractRNG} <: AbstractSolver
-        ɛ::T
-        rng::RNGT
-    end
-
-Simultaneous diagonalization of commuting matrices using the method of [CGT97].
-
-[CGT97] Corless, R. M.; Gianni, P. M. & Trager, B. M.
-*A reordered Schur factorization method for zero-dimensional polynomial systems with multiple roots*
-Proceedings of the 1997 international symposium on Symbolic and algebraic computation, 1997, 133-140
-"""
-struct ReorderedSchurSolver{T,RNGT<:Random.AbstractRNG} <: AbstractSolver
-    ɛ::T
-    rng::RNGT
-end
-function ReorderedSchurSolver(ɛ)
-    return ReorderedSchurSolver(ɛ, Random.GLOBAL_RNG)
-end
-function ReorderedSchurSolver{T}() where {T}
-    return ReorderedSchurSolver(Base.rtoldefault(real(T)))
-end
-
-# Deterministic part
-function _solve(
-    Ms::AbstractVector{<:AbstractMatrix{T}},
-    λ,
-    solver::ReorderedSchurSolver,
-) where {T<:Real}
-    @assert length(Ms) == length(λ)
-    n = length(λ)
-    Z, clusters = clusterordschur(sum(λ .* Ms), solver.ɛ)
-    r = length(clusters)
-    vals = [zeros(T, n) for _ in 1:r]
-    for k in 1:r
-        nk = length(clusters[k])
-        for j in clusters[k]
-            q = Z[:, j]
-            for i in 1:n
-                vals[k][i] += dot(q, Ms[i] * q) / nk
-            end
-        end
-    end
-    return vals
-end
-
-function solve(
-    matrices::AbstractVector{<:AbstractMatrix},
-    solver::AbstractSolver,
-)
-    λ = rand(solver.rng, length(matrices))
-    λ /= sum(λ)
-    return _solve(matrices, λ, solver)
+function cluster_arguments(_, s::SchurJointDiag, ɛ)
+    # documentation says that the error on the eigenvalues is `ɛ * norm(T) / condition_number`
+    nT = norm(s.factorization.T)
+    return I -> ɛ * nT / condition_number(s.factorization, I), s.factorization.values
 end

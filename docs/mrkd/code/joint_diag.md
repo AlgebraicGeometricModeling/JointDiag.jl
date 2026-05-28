@@ -8,7 +8,7 @@ Pages = ["joint_diag.md"]
 JointDiag.joint_diag
 JointDiag.joint_reduce
 JointDiag.JRS
-JointDiag.ReorderedSchurSolver
+JointDiag.SchurJointDiag
 JointDiag.AbstractSolver
 JointDiag.cluster_eigenvalues
 ```
